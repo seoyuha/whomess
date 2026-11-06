@@ -58,7 +58,8 @@ const DOOR = Object.fromEntries(MAP.doors.map(d => [d.id, d]));
 const TASK = Object.fromEntries(MAP.tasks.map(t => [t.id, t]));
 const SPOT = Object.fromEntries(MAP.pranks.map(p => [p.id, p]));
 
-const TEACHER_PASS = process.env.TEACHER_PASS || "finel9932!";
+// 교사 비밀번호: Render의 Environment에서 TEACHER_PASS로 설정해요 (아래 1234는 내 컴퓨터 시험용)
+const TEACHER_PASS = process.env.TEACHER_PASS || "1234";
 const rooms = new Map();
 const now = () => Date.now();
 const rid = () => crypto.randomBytes(9).toString("base64url");
