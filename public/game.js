@@ -8,6 +8,7 @@ function screen(id) { for (const s of SCREENS) $(s).classList.toggle("hide", s !
 let toastT = 0;
 function toast(msg, ms = 1800) { const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), ms); }
 const fmt = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+function goFS() { try { const el = document.documentElement; if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch (e) {} }
 const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 
 // ---------- 인트로 영상 (한 번 보면 이 탭에서는 다시 안 나와요) ----------
@@ -23,7 +24,7 @@ const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return
     setTimeout(() => ov.remove(), 700);
   };
   v.addEventListener("ended", end);
-  $("introSkip").onclick = end;
+  $("introSkip").onclick = () => { goFS(); end(); };
   $("introSnd").onclick = e => { e.stopPropagation(); v.muted = false; v.volume = 1; $("introSnd").classList.add("hide"); };
   ov.addEventListener("click", e => { if (e.target === ov || e.target === v) end(); });
   const t = setTimeout(() => { if (v.readyState < 2) end(); }, 3500); // 느린 인터넷이면 건너뜀
@@ -111,6 +112,7 @@ function onlineNet() {
 }
 let joined = false;
 $("joinBtn").onclick = async () => {
+  goFS();
   const code = $("code").value;
   if (code.length !== 4) return ($("joinErr").textContent = "방 번호 4자리를 써요");
   await ready;
@@ -183,7 +185,7 @@ function renderRoleBody(id) {
 // 역할 카드: 누르고 있는 동안만 보임
 const rc = $("roleCard");
 const coverOn = () => $("roleCover").classList.remove("hide"), coverOff = () => $("roleCover").classList.add("hide");
-rc.addEventListener("pointerdown", e => { e.preventDefault(); coverOff(); });
+rc.addEventListener("pointerdown", e => { e.preventDefault(); goFS(); coverOff(); });
 ["pointerup", "pointerleave", "pointercancel"].forEach(ev => rc.addEventListener(ev, coverOn));
 // 놀이 중 내 별명 길게 누르기 → 역할 보기
 let chipT = 0;
@@ -716,6 +718,7 @@ ready.then(() => {
 
 // ---------- 혼자 연습하기 ----------
 async function startPractice() {
+  goFS();
   await ready;
   const role = confirm("장난꾸러기로 연습할까요?\n확인 = 장난꾸러기 · 취소 = 도우미") ? "imp" : "helper";
   net = practiceNet(role);

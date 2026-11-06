@@ -12,12 +12,16 @@ body{font-size:clamp(14px,1.25vw,22px)}
 .box{padding:1.6vw 1.4vw 1vw}
 /* 대기실 */
 .code{font-family:Galmuri14;font-size:9vw;line-height:.9;letter-spacing:.02em;margin-top:.6vw}
-.promise{flex:1.15;font-family:"Galmuri14";font-size:2vw;line-height:1.5;padding-top:2.4vw}
+.promise{flex:1;font-family:"Galmuri14";font-size:1.8vw;line-height:1.5;padding-top:2.4vw}
 .promise b{color:var(--red);margin-right:.4em}
-.setting{flex:1.3;font-family:"Galmuri14";font-size:1.3vw;padding-top:1.9vw}
-.setting .r{display:flex;align-items:center;justify-content:space-between;margin:.1vw 0;gap:.5vw}
-.setting button{font-size:1.15vw;padding:.08em .5em;border-radius:10px;min-width:2.4em}
-.setting .num{font-family:Galmuri14;font-size:1.5vw;min-width:3.4em;text-align:center}
+.setting{flex:1.5;font-family:"Galmuri14";font-size:1.42vw;padding:2vw 1.1vw .6vw;display:grid;grid-template-columns:1fr 1fr;gap:.4vw 1.6vw;align-content:space-evenly;min-width:0}
+.setting .tape{grid-column:1/3}
+.setting .r{display:flex;align-items:center;justify-content:space-between;gap:.4vw;min-width:0}
+.setting .r.wide{grid-column:1/3}
+.setting .lab{white-space:nowrap}
+.setting .ctl{display:flex;align-items:center;gap:.25vw;flex-wrap:nowrap}
+.setting button{font-size:1.22vw;padding:.1em .5em;border-radius:9px;min-width:2.1em;border-width:3px;box-shadow:0 2px 0 rgba(58,46,40,.25);white-space:nowrap}
+.setting .num{font-size:1.5vw;min-width:3.2em;text-align:center;white-space:nowrap}
 .grid{flex:1;display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:minmax(0,1fr);gap:.6vw;min-height:0}
 .slot{border:3px dashed var(--ink);border-radius:14px;background:#ffe9a6;display:flex;align-items:center;justify-content:center;font-family:"Galmuri14";font-size:1.6vw;color:#b79a55}
 .slot.p{border-style:solid;background:var(--paper);color:var(--ink);flex-direction:column;cursor:pointer;font-size:1.25vw}
@@ -75,7 +79,8 @@ body{font-size:clamp(14px,1.25vw,22px)}
 .modal{position:fixed;inset:0;background:rgba(40,30,25,.6);display:flex;align-items:center;justify-content:center;z-index:50}
 .modal .paper{padding:2vw;width:min(900px,90vw)}
 .modal textarea{width:100%;height:40vh;font-size:1.2rem;font-family:"Galmuri11";border:3px solid var(--ink);border-radius:10px;padding:10px}
-.engsel button{font-size:1.05vw;min-width:0;padding:.12em .38em}
+.engsel{display:flex;gap:.25vw}
+.engsel button{font-size:1.1vw;min-width:0;padding:.1em .34em}
 .frames{font-family:"Galmuri14";font-size:1.8vw;color:var(--blue);margin-top:1vw;line-height:1.5}
 .klass{display:flex;flex-direction:column;align-items:center;gap:.2vw}
 .klass button{font-size:1.2vw;padding:.15em .5em}
@@ -239,13 +244,16 @@ function render(prev) {
 function topbar(title, sub, btns) {
   return `<div class="top"><h1>${title} <small>${sub}</small></h1>${btns}</div>`;
 }
-const ctlBtns = (meet) => `<button onclick="tv('pause')" class="${S.paused ? "y" : ""}">${S.paused ? "▶ 이어서" : "일시정지"}</button>
+const ctlBtns = (meet) => `<button onclick="tvFS()" title="전체화면 켜고 끄기">⛶</button><button onclick="tv('pause')" class="${S.paused ? "y" : ""}">${S.paused ? "▶ 이어서" : "일시정지"}</button>
   <button onclick="tv('plus30')" ${meet === 1 ? "" : "disabled"}>회의 +30초</button><button onclick="tv('skipMeeting')" ${meet ? "" : "disabled"}>회의 건너뛰기</button>
   <button class="r" onclick="if(confirm('승패 없이 판을 끝낼까요?')) tv('endGame')">판 끝내기</button>`;
 function simple(html, key) { $("app").innerHTML = html; lastView = key; }
 
 // ---------- 대기실 ----------
 const ENG = [["off", "끔"], ["10", "10단원"], ["11", "11단원"], ["12", "12단원"], ["mix", "섞기"], ["custom", "직접"]];
+const tog = (key, on) => `<button class="${on ? "sel" : ""}" onclick="saveSettings({${key}:true})">켬</button><button class="${!on ? "sel" : ""}" onclick="saveSettings({${key}:false})">끔</button>`;
+const onoff = (label, ctl, tip = "", cls = "") => `<div class="r ${cls}" ${tip ? `title="${tip}"` : ""}><span class="lab">${label}</span><span class="ctl">${ctl}</span></div>`;
+function tvFS() { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} }
 function lobby() {
   const st = S.settings, n = S.players.length;
   const cap = Math.max(1, Math.min(5, Math.floor((n - 1) / 3)));
@@ -261,13 +269,13 @@ function lobby() {
     <div class="paper box" style="flex:1"><span class="tape yel">방 번호</span><div class="code">${S.code}</div></div>
     <div class="paper box promise"><span class="tape">우리 약속</span><div><b>1.</b>장소·시간으로 말해요</div><div><b>2.</b>친구 탓 말고 증거로</div><div><b>3.</b>뽑혀도 함께 청소해요</div></div>
     <div class="paper box setting"><span class="tape sky">설정</span>
-      <div class="r">장난꾸러기 <span style="display:flex;align-items:center;gap:.4vw"><button onclick="setImps(-1)">−</button><span class="num">${st.imps ? st.imps + "명" : "자동 " + auto}</span><button onclick="setImps(1)">+</button></span></div>
-      <div class="r">놀이 시간 <span>${[5, 8, 10].map(m => `<button class="${st.minutes === m ? "sel" : ""}" onclick="saveSettings({minutes:${m}})">${m}분</button>`).join(" ")}</span></div>
-      <div class="r">판 끝 공개 <span><button class="${st.reveal ? "sel" : ""}" onclick="saveSettings({reveal:true})">켬</button> <button class="${!st.reveal ? "sel" : ""}" onclick="saveSettings({reveal:false})">끔</button></span>
-        <span title="장난이 드러나면 범인이 떠난 방향 발자국이 12초 보여요">발자국</span> <span><button class="${st.footprints ? "sel" : ""}" onclick="saveSettings({footprints:true})">켬</button> <button class="${!st.footprints ? "sel" : ""}" onclick="saveSettings({footprints:false})">끔</button></span></div>
-      <div class="r">단서 카드 <span><button class="${st.clues ? "sel" : ""}" onclick="saveSettings({clues:true})">켬</button> <button class="${!st.clues ? "sel" : ""}" onclick="saveSettings({clues:false})">끔</button></span>
-        특별 규칙 <span title="정전 + 탐정·사진부·반장"><button class="${st.special ? "sel" : ""}" onclick="saveSettings({special:true})">켬</button> <button class="${!st.special ? "sel" : ""}" onclick="saveSettings({special:false})">끔</button></span></div>
-      <div class="r">영어 <span class="engsel" style="white-space:nowrap">${ENG.map(([k, l]) => `<button class="${st.english === k ? "sel" : ""}" onclick="setEng('${k}')">${l}</button>`).join(" ")}</span></div>
+      ${onoff("장난꾸러기", `<button onclick="setImps(-1)">−</button><span class="num">${st.imps ? st.imps + "명" : "자동 " + auto}</span><button onclick="setImps(1)">+</button>`, "", "wide")}
+      ${onoff("놀이 시간", [5, 8, 10].map(m => `<button class="${st.minutes === m ? "sel" : ""}" onclick="saveSettings({minutes:${m}})">${m}분</button>`).join(""), "", "wide")}
+      ${onoff("판 끝 공개", tog("reveal", st.reveal))}
+      ${onoff("발자국", tog("footprints", st.footprints), "장난이 드러나면 범인이 떠난 방향 발자국이 12초 보여요")}
+      ${onoff("단서 카드", tog("clues", st.clues))}
+      ${onoff("특별 규칙", tog("special", st.special), "정전 + 탐정·사진부·반장")}
+      ${onoff("영어", `<span class="engsel">${ENG.map(([k, l]) => `<button class="${st.english === k ? "sel" : ""}" onclick="setEng('${k}')">${l}</button>`).join("")}</span>`, "", "wide")}
     </div>
   </div>
   <div class="grid">${slots.join("")}</div>
@@ -276,6 +284,7 @@ function lobby() {
     <div class="info">들어온 사람 <b>${n}</b> / 30 · 별명 칸을 누르면 바꾸기·내보내기<br><span style="color:#7a4a00">⚖️ 장난꾸러기 ${B.imps}명 · 도우미 1명당 심부름 ${B.perHelper}개 (모두 ${B.target}개) · 장난 쉬는 시간 ${B.cool}초</span> <button style="font-size:1vw;padding:.05em .5em" onclick="openBalance()">밸런스 표</button><br>들어오는 곳 <span class="url">${location.host}</span>${st.english !== "off" ? ` · <span style="color:var(--blue)">영어 문제: ${ENG.find(e => e[0] === st.english)[1]}${st.english === "custom" ? " (" + (st.custom || []).length + "문제)" : ""}</span>` : ""}</div>
     <div class="klass"><div class="jua" style="font-size:1.2vw">우리 반</div><div>${REC.classes.map((c, i) => `<button class="${REC.cur === i ? "sel" : ""}" onclick="setClass(${i})">${esc(shortC(c))}</button>`).join(" ")}</div></div>
     <button onclick="openBoard()">🏆 학급 기록</button>
+    <button onclick="tvFS()">⛶ 전체화면</button>
     <button onclick="if(confirm('방을 닫을까요?')){tv('close');LS.del('wm_tv_code');location.reload()}">방 닫기</button>
     <button class="y bigbtn" onclick="tv('start')" ${n >= 4 ? "" : "disabled"}>${n >= 4 ? "시작하기" : "4명부터 시작"}</button>
   </div>`;
@@ -416,7 +425,7 @@ function endView() {
   else right += `<p class="jua" style="font-size:2vw">이번 판은 공개하지 않아요</p>`;
   if (S.replay) right += `<button class="bigbtn" style="margin-top:.8vw;font-size:1.8vw" onclick="openReplay()">▶ 다시 보기</button>`;
   right += `<button class="y bigbtn" style="margin-top:.8vw;font-size:1.9vw" onclick="tv('again')">한 판 더</button><p class="jua" style="font-size:1.3vw;color:var(--ink2);margin:.3em 0 0">누르면 태블릿이 모두 대기실로 가요</p>`;
-  $("app").innerHTML = `${topbar("판 끝", "방 " + S.code, `<button onclick="if(confirm('방을 닫을까요?')){tv('close');LS.del('wm_tv_code');location.reload()}">방 닫기</button>`)}
+  $("app").innerHTML = `${topbar("판 끝", "방 " + S.code, `<button onclick="tvFS()">⛶</button><button onclick="if(confirm('방을 닫을까요?')){tv('close');LS.del('wm_tv_code');location.reload()}">방 닫기</button>`)}
   <div class="endrow" style="flex:1.2"><div class="paper">${left}</div><div class="paper">${right}</div></div>
   <div class="row" style="flex:1;min-height:0;margin-top:1vw">${mvpBand()}${classBand()}</div>`;
   lastView = "end";
