@@ -58,6 +58,7 @@ const DOOR = Object.fromEntries(MAP.doors.map(d => [d.id, d]));
 const TASK = Object.fromEntries(MAP.tasks.map(t => [t.id, t]));
 const SPOT = Object.fromEntries(MAP.pranks.map(p => [p.id, p]));
 
+const TEACHER_PASS = process.env.TEACHER_PASS || "finel9932!";
 const rooms = new Map();
 const now = () => Date.now();
 const rid = () => crypto.randomBytes(9).toString("base64url");
@@ -455,7 +456,9 @@ function isDoorTile(x, y) { const tx = Math.floor(x), ty = Math.floor(y); return
 io.on("connection", socket => {
   let room = null, me = null, isTV = false;
 
-  socket.on("tvCreate", (ack) => {
+  socket.on("tvCreate", (data, ack) => {
+    if (typeof data === "function") { ack = data; data = {}; }
+    if (String((data || {}).pass || "") !== TEACHER_PASS) return ack && ack({ err: "교사 비밀번호가 달라요" });
     const r = makeRoom();
     if (!r.code) return ack && ack({ err: "방을 만들 수 없어요" });
     room = r; isTV = true; r.tv = socket.id; socket.join(r.code);

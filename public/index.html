@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>누가 어질렀지?</title>
+<title>Who did it?</title>
 <link rel="stylesheet" href="style.css">
 <style>
 .screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -11,7 +11,9 @@
 #home{background:var(--bg) url(assets/map_small.png) center/cover;}
 #home::before{content:"";position:absolute;inset:0;background:rgba(255,212,94,.86)}
 .homewrap{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:1100px;width:100%;align-items:center}
-.title h1{font-family:"Galmuri14";font-size:clamp(2.2rem,5vw,3.6rem);margin:0;line-height:1.1}
+.title h1{margin:0;line-height:1.1}
+.biglogo{display:inline-block;font-family:"Galmuri14";font-weight:800;font-size:clamp(2.3rem,4.6vw,3.6rem);background:#343247;color:#ffe17a;padding:.22em .5em .28em;border:4px solid #23203a;border-radius:16px;box-shadow:var(--shadow);transform:rotate(-1.2deg);letter-spacing:.02em;text-shadow:3px 3px 0 #6b5420}
+.biglogo em{font-style:normal;color:#ff6b5e}
 .title h1 em{font-style:normal;color:var(--red)}
 .title p{margin:.4em 0 1.2em;color:var(--ink2);font-family:"Galmuri14";font-size:1.2rem}
 .peek{width:100%;border:4px solid var(--ink);border-radius:18px;box-shadow:var(--shadow);image-rendering:pixelated;display:block}
@@ -148,7 +150,7 @@
 <section id="home" class="screen">
   <div class="homewrap">
     <div class="leftcol">
-      <div class="title"><h1><img src="assets/ui/logo.png" alt="누가 어질렀지?" style="width:min(100%,520px);image-rendering:pixelated;display:block;margin-left:-14px"></h1><p>4~30명 · 8분 · 가입 없이 · Who Made the Mess?</p></div>
+      <div class="title"><h1 class="biglogo">WHO DID IT<em>?</em></h1><p>누가 어질렀지? · 4~30명 · 8분 · 가입 없이</p></div>
       <canvas id="peek" class="peek" width="640" height="300"></canvas>
       <div class="steps"><div><b>1</b> TV에 방</div><div><b>2</b> 심부름</div><div><b>3</b> 투표</div></div>
     </div>

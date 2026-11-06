@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>누가 어질렀지? · TV</title>
+<title>Who did it? · TV</title>
 <link rel="stylesheet" href="style.css">
 <style>
 body{font-size:clamp(14px,1.25vw,22px)}
@@ -177,7 +177,16 @@ let S = null, code = null;
 const tv = (a, extra = {}) => socket.emit("tv", Object.assign({ a }, extra));
 socket.on("connect", () => {
   const c = LS.get("wm_tv_code"), h = LS.get("wm_tv_host");
-  const fresh = () => socket.emit("tvCreate", r => { if (r.err) return toast(r.err); code = r.code; LS.set("wm_tv_code", r.code); LS.set("wm_tv_host", r.host); applySavedSettings(); });
+  const fresh = () => {
+    let p = LS.get("wm_tv_pass");
+    if (p == null) p = prompt("교사 비밀번호를 입력하세요");
+    if (p == null) return $("app").innerHTML = `<div class="center"><h2 class="jua">교사 비밀번호가 있어야 방을 만들 수 있어요</h2><button class="y bigbtn" onclick="location.reload()">다시 입력하기</button></div>`;
+    socket.emit("tvCreate", { pass: p }, r => {
+      if (r.err) { LS.del("wm_tv_pass"); toast(r.err); return setTimeout(fresh, 400); }
+      LS.set("wm_tv_pass", p);
+      code = r.code; LS.set("wm_tv_code", r.code); LS.set("wm_tv_host", r.host); applySavedSettings();
+    });
+  };
   if (c && h) socket.emit("tvResume", { code: c, host: h }, r => { if (r.err) fresh(); else code = r.code; });
   else fresh();
 });

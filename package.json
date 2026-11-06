@@ -1,7 +1,7 @@
 {
   "name": "whomess",
   "version": "1.0.0",
-  "description": "누가 어질렀지? 교실 추리 놀이",
+  "description": "Who did it? — 교실 추리 영어 게임",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
